@@ -1,12 +1,28 @@
 {
-    "todos": [
-        {
-            "id": 1,
-            "description": "Estudiar React"
-        },
-        {
-            "id": 2,
-            "description": "Estudiar json-server"
-        }
-    ]
+  "todos": [
+    {
+      "description": "Aprender React",
+      "id": 2
+    },
+    {
+      "description": "Aprender json-server",
+      "id": 3
+    },
+    {
+      "description": "todo 3",
+      "id": 6
+    },
+    {
+      "description": "todo 4",
+      "id": 7
+    },
+    {
+      "description": "todo 5",
+      "id": 8
+    },
+    {
+      "description": "todo 6",
+      "id": 9
+    }
+  ]
 }

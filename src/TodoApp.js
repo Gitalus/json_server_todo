@@ -1,67 +1,95 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from './hooks/useForm';
 
 export const TodoApp = () => {
 
     const [todos, setTodos] = useState([]);
+    const [url] = useState("http://localhost:3001/todos")
 
-    const [ { desc }, handleInputChange, reset ] = useForm({
-        desc: ''
+    const [{ description }, handleInputChange, reset] = useForm({
+        description: ''
     });
+
+    useEffect(() => {
+        getData();
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (desc.trim().length < 1) return;
-
-        const newTodo = {
-            desc
-        }
-        setTodos([ ...todos, newTodo ]);
+        if (description.trim().length < 1) return;
+        postData();
         reset();
     };
 
-    const handleDelete = (index) => {
-        setTodos([ ...todos.slice(0, index), ...todos.slice(index + 1) ])
+    const getData = () => {
+        fetch(url)
+            .then(resp => resp.json())
+            .then(data => {
+                setTodos(data)
+            })
+            .catch(err => console.log(err));
+    }
+
+
+    const postData = () => {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                description
+            })
+        })
+            .then(({ ok }) => ok && getData())
+            .catch(err => console.log(err));
+    };
+
+    const handleDelete = (id) => {
+        fetch(`${url}/${id}`, {
+            method: 'DELETE'
+        })
+            .then(({ ok }) => ok && getData())
+            .catch(err => console.log(err));
     }
 
     return (
         <>
             <h1>todos</h1>
             <div className="page">
-                <form onSubmit={ handleSubmit }>
-                    <input 
+                <form onSubmit={handleSubmit}>
+                    <input
                         className="item-list"
                         type="text"
-                        value={ desc }
-                        onChange={ handleInputChange }
-                        name="desc"
+                        value={description}
+                        onChange={handleInputChange}
+                        name="description"
                         autoComplete="off"
                         placeholder="Create a todo item..."
                     />
                     <hr />
                 </form>
                 {
-                    todos.map( (todo, index) => (
-                        <div 
+                    todos.map(todo => (
+                        <div
                             className="item-container"
-                            key={ index }
+                            key={todo.id}
                         >
-                            <div 
+                            <div
                                 className="item-list"
                             >
-                                { todo.desc }
+                                {todo.description}
                             </div>
-                            <i  
+                            <i
                                 className="fas fa-times"
-                                onClick={ () => handleDelete(index) }></i>
-                            <hr className="w100"/>
+                                onClick={() => handleDelete(todo.id)}></i>
+                            <hr className="w100" />
                         </div>
                     ))
                 }
                 {
-                    todos.length > 0 ? <div className="item-list footer">{ todos.length } Item{ todos.length === 1 ? "" : "s" } left</div>
-                    : <div className="item-list footer">No tasks, add a task</div>
+                    todos.length > 0 ? <div className="item-list footer">{todos.length} Item{todos.length === 1 ? "" : "s"} left</div>
+                        : <div className="item-list footer">No tasks, add a task</div>
                 }
                 <hr />
             </div>
