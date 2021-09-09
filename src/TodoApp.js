@@ -37,7 +37,7 @@ export const TodoApp = () => {
             .then(data => {
                 setTodos(data);
             })
-            .catch(err => console.log(err));
+            .catch(err => console.error(err));
     }
 
     const createList = () => {
@@ -53,18 +53,25 @@ export const TodoApp = () => {
     }
 
     const postData = () => {
+        let _todos = [];
+        if (todos.length === 1 && todos[0].label === 'sample task') {
+            _todos = [{
+                label: description,
+                done: false
+            }]
+        } else {
+            _todos = [...todos, {
+                label: description,
+                done: false
+            }]
+        }
 
         fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json'
             },
-            body: JSON.stringify([
-                ...todos,
-                {
-                    label: description,
-                    done: false
-                }])
+            body: JSON.stringify(_todos)
         })
             .then(({ ok }) => ok && getData())
             .catch(err => console.log(err));
@@ -118,26 +125,30 @@ export const TodoApp = () => {
                     <hr />
                 </form>
                 {
-                    todos.map(({ label }, index) => (
-                        <div
-                            className='item-container'
-                            key={index}
-                        >
+                    (todos.length === 1 && todos[0].label === 'sample task') ? null
+                        :
+                        todos.map(({ label }, index) => (
                             <div
-                                className='item-list'
+                                className='item-container'
+                                key={index}
                             >
-                                {label}
+                                <div
+                                    className='item-list'
+                                >
+                                    {label}
+                                </div>
+                                <i
+                                    className='fas fa-times'
+                                    onClick={() => handleDelete(index)}></i>
+                                <hr className='w100' />
                             </div>
-                            <i
-                                className='fas fa-times'
-                                onClick={() => handleDelete(index)}></i>
-                            <hr className='w100' />
-                        </div>
-                    ))
+                        ))
                 }
                 {
-                    todos.length > 0 ? <div className='item-list footer'>{todos.length} Item{todos.length === 1 ? '' : 's'} left</div>
-                        : <div className='item-list footer'>No tasks, add a task</div>
+                    (todos.length === 1 && todos[0].label === 'sample task') ? <div className='item-list footer'>No tasks, add a task</div>
+                        :
+                        todos.length > 0 ? <div className='item-list footer'>{todos.length} Item{todos.length === 1 ? '' : 's'} left</div>
+                            : <div className='item-list footer'>No tasks, add a task</div>
                 }
                 <hr />
             </div>
